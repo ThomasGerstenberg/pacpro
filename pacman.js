@@ -1,12 +1,10 @@
 // ==UserScript==
 // @name          PacPro
 // @namespace     http://*.koalabeast.com:*
-// @namespace     *tagproandluckyspammersucksandunfortunatesniperisawesome.com:*
 // @version       3.0.1
 // @description   Pacman mod texture pack
-// @match         http://koalabeast.com
-// @match         *tagproandluckyspammersucksandunfortunatesniperisawesome.com:*
-// @copyright     2014+, Ly and a little bit of Cumflakes
+// @copyright     2015+, moose.
+// @require       https://gist.githubusercontent.com/Holcomb227/415e751330d2cd65f108/raw/68e7249dab91fab1ec392fff02e398139822ddfc/tagproRefresh.js
 // @include       http://*.koalabeast.com*
 // @include       http://*.jukejuice.com*
 // @include       http://*.newcompte.fr*
@@ -32,16 +30,16 @@ var pacMouthMax_JJ = 10;
 
 tagpro.ready(function()
 {
-    checkTeam();
 
     //document.getElementById("tiles").src = "http://i.imgur.com/1n2NhRI.png";
     document.getElementById("tiles").src = "http://i.imgur.com/D2bsPhj.png";//"http://i.imgur.com/vEiGkQ3.png";//"http://i.imgur.com/fXutuKN.png";
     document.getElementById("splats").src = "http://i.imgur.com/PJHTIFB.png";
-    document.getElementById("speedpad").src = "http://i.imgur.com/T1yMR4y.png";
-    document.getElementById("speedpadred").src = "http://i.imgur.com/9kInsRD.png";
-    document.getElementById("speedpadblue").src = "http://i.imgur.com/cnepff2.png";
+    document.getElementById("speedpad").src = "http://i.imgur.com/xNYdOYD.png";
+    document.getElementById("speedpadred").src = "http://i.imgur.com/2pbrSjq.png";
+    document.getElementById("speedpadblue").src = "http://i.imgur.com/tbz0xgb.png";
     document.getElementById("portal").src = "http://i.imgur.com/a0JUw8q.png";
     
+    checkTeam();
     // CORRECT SPEEDPADS
     /*document.getElementById("speedpad").src = "http://i.imgur.com/cnepff2.png";
     document.getElementById("speedpadred").src = "http://i.imgur.com/9kInsRD.png";
@@ -319,6 +317,8 @@ tagpro.ready(function()
         var s = tagpro.renderer.largeText(r, i);
         return s.x = Math.round(t.x - s.width / 2), s.y = 100, e.addChild(s), s
     };
+
+    
 });
 
 function checkTeam() {
@@ -338,7 +338,7 @@ function checkTeam() {
         tagpro.ui.sprites.redScore = null;
         tagpro.ui.sprites.blueScore = null;
     }
-    // setTimeout(tagpro.renderer.drawBackground(), 0);
+    refreshTextures();
 }
 
 function switchTiles() {
@@ -374,5 +374,15 @@ function switchTiles() {
     tagpro.tiles[12] = rTeam;
     tagpro.tiles['blueball'] = rBall;
     tagpro.tiles['blueflag'] = rFlag2;
+
+    rspeed = document.getElementById("speedpadred").src;
+    document.getElementById("speedpadred").src = document.getElementById("speedpadblue").src;
+    document.getElementById("speedpadblue").src = rspeed;
 }
 
+function refreshTextures() {
+    if (!tagpro.renderer.refresh) {
+        return setTimeout(refreshTextures, 100);
+    }
+    window.requestAnimationFrame(tagpro.renderer.refresh);
+}
