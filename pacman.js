@@ -28,16 +28,21 @@ var GHOST_TAGPRO = new PIXI.Texture.fromImage("http://i.imgur.com/U7l92W8.png");
 var pacMouthMax = 15;
 var pacMouthMax_JJ = 10;
 
+var TilesRegular = "http://i.imgur.com/D2bsPhj.png";
+var TilesSwapped = "http://i.imgur.com/lLH88hb.png";
+
 tagpro.ready(function()
 {
 
     //document.getElementById("tiles").src = "http://i.imgur.com/1n2NhRI.png";
-    document.getElementById("tiles").src = "http://i.imgur.com/D2bsPhj.png";//"http://i.imgur.com/vEiGkQ3.png";//"http://i.imgur.com/fXutuKN.png";
+    document.getElementById("tiles").src = TilesRegular;//"http://i.imgur.com/vEiGkQ3.png";//"http://i.imgur.com/fXutuKN.png";
     document.getElementById("splats").src = "http://i.imgur.com/PJHTIFB.png";
     document.getElementById("speedpad").src = "http://i.imgur.com/xNYdOYD.png";
     document.getElementById("speedpadred").src = "http://i.imgur.com/2pbrSjq.png";
     document.getElementById("speedpadblue").src = "http://i.imgur.com/tbz0xgb.png";
     document.getElementById("portal").src = "http://i.imgur.com/a0JUw8q.png";
+    document.getElementById("ballpopred").src = "http://i.imgur.com/31srn9r.png";
+    document.getElementById("ballpopblue").src = "http://i.imgur.com/HGvXAsC.png";
     
     checkTeam();
     // CORRECT SPEEDPADS
@@ -318,71 +323,71 @@ tagpro.ready(function()
         return s.x = Math.round(t.x - s.width / 2), s.y = 100, e.addChild(s), s
     };
 
+    tr.drawSplat = function(e, t, r, i, s) {
+        tr.drawBallPop(e + 19, t + 19, r);
+    }
+
     
+
+    function checkTeam() {
+        //wait until you'be been assigned to a team and the tiles have been loaded. 
+        if (!tagpro.players[tagpro.playerId] | !tagpro.tiles) {
+            return setTimeout(checkTeam,0);
+        }
+
+        //if the team color you've been assigned to is different from your preference, switch team colored tiles
+        teamId = tagpro.players[tagpro.playerId].team;
+        if (teamId  != colorId[teamColor]) {
+            tagpro.switchedColors = true;
+            switchTiles();
+            // Force a redraw of the scores
+            tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.redScore);
+            tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.blueScore);
+            tagpro.ui.sprites.redScore = null;
+            tagpro.ui.sprites.blueScore = null;
+        }
+        refreshTextures();
+    }
+
+    function switchTiles() {
+        //store red tiles temporarily
+        // rFlag = tagpro.tiles[3];
+        // rEmptyFlag = tagpro.tiles[3.1];
+        // rGate = tagpro.tiles[9.2];
+        // rZone = tagpro.tiles[17];
+        // rTeam = tagpro.tiles[11];
+        // rBall = tagpro.tiles['redball'];
+        // rFlag2 = tagpro.tiles['redflag'];
+        
+        // //set red tiles equal to blue tiles
+        // tagpro.tiles[3] = tagpro.tiles[4];
+        // tagpro.tiles[3.1] = tagpro.tiles[4.1];
+        // tagpro.tiles[9.2] = tagpro.tiles[9.3];
+        // tagpro.tiles[17] = tagpro.tiles[18];
+        // tagpro.tiles[11] = tagpro.tiles[12];
+        // tagpro.tiles['redball'] = tagpro.tiles['blueball'];
+        // tagpro.tiles['redflag'] = tagpro.tiles['blueflag'];
+        
+        // //set blue tiles equal to red tiles that were stored earlier
+        // tagpro.tiles[4] = rFlag;
+        // tagpro.tiles[4.1] = rEmptyFlag;
+        // tagpro.tiles[9.3] = rGate;
+        // tagpro.tiles[18] = rZone;
+        // tagpro.tiles[12] = rTeam;
+        // tagpro.tiles['blueball'] = rBall;
+        // tagpro.tiles['blueflag'] = rFlag2;
+        document.getElementById("tiles").src = TilesSwapped;
+
+        rspeed = document.getElementById("speedpadred").src;
+        document.getElementById("speedpadred").src = document.getElementById("speedpadblue").src;
+        document.getElementById("speedpadblue").src = rspeed;
+    }
+
+    function refreshTextures() {
+        if (!tagpro.renderer.refresh) {
+            return setTimeout(refreshTextures, 10);
+        }
+        console.log("Refreshing");
+        window.requestAnimationFrame(tagpro.renderer.refresh);
+    }
 });
-
-function checkTeam() {
-    //wait until you'be been assigned to a team and the tiles have been loaded. 
-    if (!tagpro.players[tagpro.playerId] | !tagpro.tiles) {
-        return setTimeout(checkTeam,0);
-    }
-
-    //if the team color you've been assigned to is different from your preference, switch team colored tiles
-    teamId = tagpro.players[tagpro.playerId].team;
-    if (teamId  != colorId[teamColor]) {
-        tagpro.switchedColors = true;
-        switchTiles();
-        // Force a redraw of the scores
-        tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.redScore);
-        tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.blueScore);
-        tagpro.ui.sprites.redScore = null;
-        tagpro.ui.sprites.blueScore = null;
-    }
-    refreshTextures();
-}
-
-function switchTiles() {
-    //store red tiles temporarily
-    rFlag = tagpro.tiles[3];
-    rEmptyFlag = tagpro.tiles[3.1];
-    rSpeedPad = tagpro.tiles[14];
-    rEmptySpeedPad = tagpro.tiles[14.1];
-    rGate = tagpro.tiles[9.2];
-    rZone = tagpro.tiles[17];
-    rTeam = tagpro.tiles[11];
-    rBall = tagpro.tiles['redball'];
-    rFlag2 = tagpro.tiles['redflag'];
-    
-    //set red tiles equal to blue tiles
-    tagpro.tiles[3] = tagpro.tiles[4];
-    tagpro.tiles[3.1] = tagpro.tiles[4.1];
-    tagpro.tiles[14] = tagpro.tiles[15];
-    tagpro.tiles[14.1] = tagpro.tiles[15.1];
-    tagpro.tiles[9.2] = tagpro.tiles[9.3];
-    tagpro.tiles[17] = tagpro.tiles[18];
-    tagpro.tiles[11] = tagpro.tiles[12];
-    tagpro.tiles['redball'] = tagpro.tiles['blueball'];
-    tagpro.tiles['redflag'] = tagpro.tiles['blueflag'];
-    
-    //set blue tiles equal to red tiles that were stored earlier
-    tagpro.tiles[4] = rFlag;
-    tagpro.tiles[4.1] = rEmptyFlag;
-    tagpro.tiles[15] = rSpeedPad;
-    tagpro.tiles[15.1]= rEmptySpeedPad;
-    tagpro.tiles[9.3] = rGate;
-    tagpro.tiles[18] = rZone;
-    tagpro.tiles[12] = rTeam;
-    tagpro.tiles['blueball'] = rBall;
-    tagpro.tiles['blueflag'] = rFlag2;
-
-    rspeed = document.getElementById("speedpadred").src;
-    document.getElementById("speedpadred").src = document.getElementById("speedpadblue").src;
-    document.getElementById("speedpadblue").src = rspeed;
-}
-
-function refreshTextures() {
-    if (!tagpro.renderer.refresh) {
-        return setTimeout(refreshTextures, 100);
-    }
-    window.requestAnimationFrame(tagpro.renderer.refresh);
-}
