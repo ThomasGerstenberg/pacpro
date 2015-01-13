@@ -334,7 +334,22 @@ tagpro.ready(function()
     };
 
     tr.drawSplat = function(e, t, r, i, s) {
+        console.log("Drawsplat");
         tr.drawBallPop(e + 19, t + 19, r);
+    }
+
+    tr.drawBallPop = function(e, t, r) {
+        var i = r == 1 ? "ballpopred" : "ballpopblue",
+            s = new PIXI.MovieClip(tagpro.tiles[i].textures);
+        s.playing = !0, s.loop = !1, s.x = e, s.y = t, s.animationSpeed = .35;
+        var o = 1;
+        s.updateTransform = function() {
+            s.scale = new PIXI.Point(o, o), s.x = e - o * 19, s.y = t - o * 19, s.alpha = 1 / (o / 2), o += .15, PIXI.MovieClip.prototype.updateTransform.call(s)
+        }, tr.layers.foreground.addChild(s), s.onComplete = function() {
+            setTimeout(function() {
+                s.parent.removeChild(s)
+            }, 0)
+        }
     }
 
     function checkTeam() {
@@ -346,11 +361,23 @@ tagpro.ready(function()
         //if the team color you've been assigned to is different from your preference, switch team colored tiles
         teamId = tagpro.players[tagpro.playerId].team;
         if (teamId  != colorId[teamColor]) {
+            console.log("Switching teams");
             tagpro.switchedColors = true;
             switchTiles();
 
         }
         setTimeout(checkSwitchTeam, 5000);
+    }
+
+    function checkSwitchTeam(){
+        if (teamId != tagpro.players[tagpro.playerId].team)
+        {
+            console.log("Switching Teams");
+            teamId = tagpro.players[tagpro.playerId].team;
+            tagpro.switchedColors = !tagpro.switchedColors;
+            switchTiles();
+        }
+        setTimeout(checkSwitchTeam, 1000);
     }
 
     function switchTiles() {
@@ -385,16 +412,5 @@ tagpro.ready(function()
             return setTimeout(refreshTextures, 10);
         }
         window.requestAnimationFrame(tagpro.renderer.refresh);
-    }
-
-    function checkSwitchTeam(){
-        if (teamId != tagpro.players[tagpro.playerId].team)
-        {
-            console.log("Switching Teams");
-            teamId = tagpro.players[tagpro.playerId].team;
-            tagpro.switchedColors = !tagpro.switchedColors;
-            switchTiles();
-        }
-        setTimeout(checkSwitchTeam, 1000);
     }
 });
