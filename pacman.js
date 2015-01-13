@@ -2,58 +2,64 @@
 // @name          PacPro
 // @namespace     http://*.koalabeast.com:*
 // @version       3.0.1
-// @description   Pacman mod texture pack
+// @description   Pacman mod and texture pack
 // @copyright     2015+, moose.
 // @require       https://gist.githubusercontent.com/SomeBall-1/80320c9db3e1146c0a66/raw/TagPro%20Texture%20Refresh.js
 // @include       http://*.koalabeast.com*
 // @include       http://*.jukejuice.com*
 // @include       http://*.newcompte.fr*
 // @include       *tagproandluckyspammersucksandunfortunatesniperisawesome.com:*
-// @include       http://justletme.be*
 // ==/UserScript==
 
-//Set your team color and other preferences here:
-teamColor = 'blue';
-opponentColor = (teamColor == 'blue') ? 'red' : 'blue'; 
-tagpro.switchedColors = false;
-colorId = {red:1, blue:2};
-teamId = 0;
 
 // TILES
 var TilesRegular = "http://i.imgur.com/D2bsPhj.png";
 var TilesSwapped = "http://i.imgur.com/lLH88hb.png";
-
+var SpeedPad = "http://i.imgur.com/xNYdOYD.png";
+var SpeedPadRed = "http://i.imgur.com/2pbrSjq.png";
+var SpeedPadBlue = "http://i.imgur.com/tbz0xgb.png";
+var Portal = "http://i.imgur.com/a0JUw8q.png";
+var BallPopRed = "http://i.imgur.com/31srn9r.png";
+var BallPopBlue = "http://i.imgur.com/HGvXAsC.png";
 //Textures
 var PACTOP = new PIXI.Texture.fromImage("http://i.imgur.com/ovzoHNE.png");
 var PACBOT = new PIXI.Texture.fromImage("http://i.imgur.com/gIAt7wD.png");
 var BLUEGHOST = new PIXI.Texture.fromImage("http://i.imgur.com/uQC5eVO.png");
 var REDGHOST = new PIXI.Texture.fromImage("http://i.imgur.com/dvd3kh4.png");
 var GHOST_TAGPRO = new PIXI.Texture.fromImage("http://i.imgur.com/U7l92W8.png");
-var pacMouthMax = 15;
-var pacMouthMax_JJ = 9;
+//Constants
+var MOUTH_MAX = 15;
+var MOUTH_MAX_JJ = 8;
 
+//Globals
+teamColor = 'blue';
+tagpro.switchedColors = false;
+colorId = {red:1, blue:2};
+teamId = 0;
 
 tagpro.ready(function()
 {
     document.getElementById("tiles").src = TilesRegular;
-    document.getElementById("splats").src = "http://i.imgur.com/PJHTIFB.png";
-    document.getElementById("speedpad").src = "http://i.imgur.com/xNYdOYD.png";
-    document.getElementById("speedpadred").src = "http://i.imgur.com/2pbrSjq.png";
-    document.getElementById("speedpadblue").src = "http://i.imgur.com/tbz0xgb.png";
-    document.getElementById("portal").src = "http://i.imgur.com/a0JUw8q.png";
-    document.getElementById("ballpopred").src = "http://i.imgur.com/31srn9r.png";
-    document.getElementById("ballpopblue").src = "http://i.imgur.com/HGvXAsC.png";
+    document.getElementById("speedpad").src = SpeedPad;
+    document.getElementById("speedpadred").src = SpeedPadRed;
+    document.getElementById("speedpadblue").src = SpeedPadBlue;
+    document.getElementById("portal").src = Portal;
+    document.getElementById("ballpopred").src = BallPopRed;
+    document.getElementById("ballpopblue").src = BallPopBlue;
     
     checkTeam();
     tr = tagpro.renderer;
     
+    // Creates the Pacman sprite
     tr.createPacman = function(player) {
+        // If player switched team, remove the ghost sprite
         if (player.sprites.ghost)
         {
             player.sprites.ball.removeChild(player.sprites.ghost);
             player.sprites.ghost = null;
         }
 
+        // Create sprite, center it onto ball
         var pacTop = new PIXI.Sprite(PACTOP);
         var pacBot = new PIXI.Sprite(PACBOT);
         pacTop.anchor = new PIXI.Point(.5, .5);
@@ -63,11 +69,12 @@ tagpro.ready(function()
         pacBot.x = 20;
         pacBot.y = 20;
         
+        // Initialize the mouth to open and all parameters
         pacTop.rotation = Math.atan2(-1,1);
         pacBot.rotation = Math.atan2(1,1);
         
-        pacTop.mouthPos = pacMouthMax;
-        pacTop.mouthMax = pacMouthMax;
+        pacTop.mouthPos = MOUTH_MAX;
+        pacTop.mouthMax = MOUTH_MAX;
         pacTop.closing = true;
         pacTop.flipped = false;
 
@@ -77,12 +84,15 @@ tagpro.ready(function()
         player.sprites.ball.addChild(player.sprites.pacBot);
     }
 
+    // Updates the Pacman sprite.  This includes opening/closing the mouth,
+    // flipping directions, and handling the jukejuice mouth speed increase
     tr.updatePacman = function(player) {
         if(player.dead) return;
         //lx negative = left 
         //lx positive = right
         s = player.sprites;
 
+        // Check if pacman needs to be flipped
         if (((player.lx < 0) && !s.pacTop.flipped) || ((player.lx > 0) && s.pacTop.flipped))
         {
             s.pacTop.scale.x *= -1;
@@ -90,24 +100,29 @@ tagpro.ready(function()
             s.pacTop.flipped = !s.pacTop.flipped;
         }
 
-        if (player.grip && s.pacTop.mouthMax != pacMouthMax_JJ)
+        // Update the mouth speed depending if player has jukejuice/grip
+        if (player.grip && s.pacTop.mouthMax != MOUTH_MAX_JJ)
         {
-            s.pacTop.mouthMax = pacMouthMax_JJ;
-            if (s.pacTop.mouthPos >= pacMouthMax_JJ)
+            s.pacTop.mouthMax = MOUTH_MAX_JJ;
+            //If the current pos is greater than the max, reset it to the new max
+            if (s.pacTop.mouthPos >= MOUTH_MAX_JJ)
             {
-                s.pacTop.mouthPos = pacMouthMax_JJ;
+                s.pacTop.mouthPos = MOUTH_MAX_JJ;
                 s.pacTop.closing = true;
             }
         }
-        else if (!player.grip && s.pacTop.mouthMax != pacMouthMax)
+        else if (!player.grip && s.pacTop.mouthMax != MOUTH_MAX)
         {
-            s.pacTop.mouthMax = pacMouthMax;
+            // No longer has juke juice, reset the mouth
+            s.pacTop.mouthMax = MOUTH_MAX;
         }
 
+        //Calculations to figure out the position of the mouth
         var mouthCenter = s.pacTop.flipped ? (Math.PI/4) : 0;
         s.pacTop.rotation = Math.atan2(-1, 1) * (s.pacTop.mouthPos)/s.pacTop.mouthMax + mouthCenter;
         s.pacBot.rotation = Math.atan2(1, 1) * (s.pacTop.mouthPos)/s.pacTop.mouthMax - mouthCenter;
         
+        // Decrement/increment the mouth position
         if(s.pacTop.closing)
         {
             s.pacTop.mouthPos--;
@@ -126,6 +141,7 @@ tagpro.ready(function()
         }
     }
     
+    // Creates the Ghost sprite
     tr.createGhost = function(player) {
 
         //Player switched teams, remove the pacman sprite
@@ -145,11 +161,11 @@ tagpro.ready(function()
         player.sprites.ghost = ghost;
         player.sprites.ball.addChild(player.sprites.ghost);
 
+        // Create the eyes.  These are plain black 3px radius circles
         var ghostLeftEye = new PIXI.Graphics;
         player.sprites.ghostLeftEye = ghostLeftEye;
         ghostLeftEye.beginFill(0, 1).drawCircle(11, 13, 3);
         player.sprites.ball.addChild(ghostLeftEye);
-
 
         var ghostRightEye = new PIXI.Graphics;
         player.sprites.ghostRightEye = ghostRightEye;
@@ -157,8 +173,12 @@ tagpro.ready(function()
         player.sprites.ball.addChild(ghostRightEye);
     }
 
+    // Updates the Ghost sprite.  This includes changing ghost color to blue
+    // When you have the tagpro, and moving the eyes based on current direction
+    // Traveling
     tr.updateGhost = function(player){
         
+        // Check if you have tagpro.  If so, turn all enemy ghosts blue
         if(tagpro.players[tagpro.playerId].tagpro && !player.sprites.ghost.blue)
         {
             player.sprites.ghost.texture = BLUEGHOST;
@@ -172,6 +192,8 @@ tagpro.ready(function()
 
         var leftEye;
         var rightEye;
+        // Determine the direction traveliing in terms of the 8 cardinal directions
+        // This is done by taking the arctan of the current direction and rounding to the nearest 0.25
         var direction = Math.atan2(player.lx, player.ly)/Math.PI;
         direction = Math.round(direction * 4)/4;
         //TODO: Clean up and make pretty
@@ -229,11 +251,12 @@ tagpro.ready(function()
         leftEye.y -= 13;
         rightEye.x -= 20;
         rightEye.y -= 13;
-
+        // Update the positions
         player.sprites.ghostLeftEye.position = leftEye;
         player.sprites.ghostRightEye.position = rightEye;
     }
     
+    // Creates and updates both pacman and ghost sprites
     var prevUpdateSprites = tr.updatePlayerSpritePosition;
     tr.updatePlayerSpritePosition = function (player) {
         var selfPlayer = tagpro.players[tagpro.playerId];
@@ -264,7 +287,8 @@ tagpro.ready(function()
         prevUpdateSprites(player);
     };
 
-    //*************** TAGPRO *********************//
+    // Updates the tagpro ring.  This is modified from the source code to 
+    // encompass the whole ghost and also to thin the green ring round pacman (from 3px down to 2px)
     tr.updateTagpro = function (e) {
         if (e.tagpro) {
             if (!e.sprites.tagproTint) {
@@ -278,10 +302,6 @@ tagpro.ready(function()
                     var t = e.sprites.tagproTint = new PIXI.Graphics;
                     t.beginFill(65280, .2).lineStyle(2, 65280).drawCircle(20, 20, 19), 
                         e.sprites.ball.addChild(t);
-
-                        // n.options.disableParticles || 
-                        //     (e.sprites.tagproSparks = new cloudkid.Emitter(e.sprites.ball, [n.particleFireTexture], tagpro.particleDefinitions.tagproSparks), 
-                        //         e.sprites.tagproSparks.player = e.id, n.emitters.push(e.sprites.tagproSparks))
                 }
             }
         } else {
@@ -294,6 +314,7 @@ tagpro.ready(function()
         }
     };
 
+    // Sets the scores down below to Pacman vs. Ghost and changes the color to yellow vs red respectively
     tagpro.ui.scores = function() {
         var e = "", //redScoreString
             t = ""; //blueScoreString
@@ -314,6 +335,7 @@ tagpro.ready(function()
         tagpro.renderer.layers.ui.addChild(tagpro.ui.sprites.blueScore));
     };
 
+    // Displays the correct winner at the end of the game depending if teams had to be swapped
     tagpro.ui.largeAlert = function(e, t, n, r, i) {
         if (r.indexOf("Wins!") > -1)
         {
@@ -333,11 +355,14 @@ tagpro.ready(function()
         return s.x = Math.round(t.x - s.width / 2), s.y = 100, e.addChild(s), s
     };
 
+    // Overrides the default pop animation to display the drawBallPop function.  Also does not draw splats
     tr.drawSplat = function(e, t, r, i, s) {
-        console.log("Drawsplat");
         tr.drawBallPop(e + 19, t + 19, r);
     }
 
+    // Overriding the default pop animation to the previous MovieClip.
+    // Ghost death animation: eyes getting larger and moving upwards
+    // Pacman death animation: Pieces of pacman getting chipped away
     tr.drawBallPop = function(e, t, r) {
         var i = r == 1 ? "ballpopred" : "ballpopblue",
             s = new PIXI.MovieClip(tagpro.tiles[i].textures);
@@ -352,6 +377,8 @@ tagpro.ready(function()
         }
     }
 
+    // Initial function to determine whether or not to swap the tiles based on the team assigned.
+    // The pacman team is defaulted to blue, so if the player is assigned red, the tiles need to be swapped
     function checkTeam() {
         //wait until you'be been assigned to a team and the tiles have been loaded. 
         if (!tagpro.players[tagpro.playerId] | !tagpro.tiles) {
@@ -361,7 +388,6 @@ tagpro.ready(function()
         //if the team color you've been assigned to is different from your preference, switch team colored tiles
         teamId = tagpro.players[tagpro.playerId].team;
         if (teamId  != colorId[teamColor]) {
-            console.log("Switching teams");
             tagpro.switchedColors = true;
             switchTiles();
 
@@ -369,10 +395,10 @@ tagpro.ready(function()
         setTimeout(checkSwitchTeam, 5000);
     }
 
+    // Periodic function to check whether you have switched teams.  If so, switch the tiles to keep colors consistend
     function checkSwitchTeam(){
         if (teamId != tagpro.players[tagpro.playerId].team)
         {
-            console.log("Switching Teams");
             teamId = tagpro.players[tagpro.playerId].team;
             tagpro.switchedColors = !tagpro.switchedColors;
             switchTiles();
@@ -380,6 +406,7 @@ tagpro.ready(function()
         setTimeout(checkSwitchTeam, 1000);
     }
 
+    // Swaps the speed pads, death animations, and tile images to keep the player on the consistent color team
     function switchTiles() {
         rspeed = document.getElementById("speedpadred").src;
         document.getElementById("speedpadred").src = document.getElementById("speedpadblue").src;
@@ -407,6 +434,7 @@ tagpro.ready(function()
         setTimeout(refreshTextures, 100);
     }
 
+    // Function to refresh the map. Thanks to CFlakes and Some Ball -1 for implementing this
     function refreshTextures() {
         if (!tagpro.renderer.refresh) {
             return setTimeout(refreshTextures, 10);
