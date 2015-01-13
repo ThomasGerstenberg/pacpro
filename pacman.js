@@ -4,7 +4,7 @@
 // @version       3.0.1
 // @description   Pacman mod texture pack
 // @copyright     2015+, moose.
-// @require       https://gist.githubusercontent.com/Holcomb227/415e751330d2cd65f108/raw/68e7249dab91fab1ec392fff02e398139822ddfc/tagproRefresh.js
+// @require       https://gist.githubusercontent.com/SomeBall-1/80320c9db3e1146c0a66/raw/TagPro%20Texture%20Refresh.js
 // @include       http://*.koalabeast.com*
 // @include       http://*.jukejuice.com*
 // @include       http://*.newcompte.fr*
@@ -19,6 +19,10 @@ tagpro.switchedColors = false;
 colorId = {red:1, blue:2};
 teamId = 0;
 
+// TILES
+var TilesRegular = "http://i.imgur.com/D2bsPhj.png";
+var TilesSwapped = "http://i.imgur.com/lLH88hb.png";
+
 //Textures
 var PACTOP = new PIXI.Texture.fromImage("http://i.imgur.com/ovzoHNE.png");
 var PACBOT = new PIXI.Texture.fromImage("http://i.imgur.com/gIAt7wD.png");
@@ -26,16 +30,12 @@ var BLUEGHOST = new PIXI.Texture.fromImage("http://i.imgur.com/uQC5eVO.png");
 var REDGHOST = new PIXI.Texture.fromImage("http://i.imgur.com/dvd3kh4.png");
 var GHOST_TAGPRO = new PIXI.Texture.fromImage("http://i.imgur.com/U7l92W8.png");
 var pacMouthMax = 15;
-var pacMouthMax_JJ = 10;
+var pacMouthMax_JJ = 9;
 
-var TilesRegular = "http://i.imgur.com/D2bsPhj.png";
-var TilesSwapped = "http://i.imgur.com/lLH88hb.png";
 
 tagpro.ready(function()
 {
-
-    //document.getElementById("tiles").src = "http://i.imgur.com/1n2NhRI.png";
-    document.getElementById("tiles").src = TilesRegular;//"http://i.imgur.com/vEiGkQ3.png";//"http://i.imgur.com/fXutuKN.png";
+    document.getElementById("tiles").src = TilesRegular;
     document.getElementById("splats").src = "http://i.imgur.com/PJHTIFB.png";
     document.getElementById("speedpad").src = "http://i.imgur.com/xNYdOYD.png";
     document.getElementById("speedpadred").src = "http://i.imgur.com/2pbrSjq.png";
@@ -45,11 +45,6 @@ tagpro.ready(function()
     document.getElementById("ballpopblue").src = "http://i.imgur.com/HGvXAsC.png";
     
     checkTeam();
-    // CORRECT SPEEDPADS
-    /*document.getElementById("speedpad").src = "http://i.imgur.com/cnepff2.png";
-    document.getElementById("speedpadred").src = "http://i.imgur.com/9kInsRD.png";
-    document.getElementById("speedpadblue").src = "http://i.imgur.com/T1yMR4y.png";*/
-    
     tr = tagpro.renderer;
     
     tr.createPacman = function(player) {
@@ -86,31 +81,47 @@ tagpro.ready(function()
         if(player.dead) return;
         //lx negative = left 
         //lx positive = right
-        if (((player.lx < 0) && !player.sprites.pacTop.flipped) || ((player.lx > 0) && player.sprites.pacTop.flipped))
+        s = player.sprites;
+
+        if (((player.lx < 0) && !s.pacTop.flipped) || ((player.lx > 0) && s.pacTop.flipped))
         {
-            player.sprites.pacTop.scale.x *= -1;
-            player.sprites.pacBot.scale.x *= -1;
-            player.sprites.pacTop.flipped = !player.sprites.pacTop.flipped;
+            s.pacTop.scale.x *= -1;
+            s.pacBot.scale.x *= -1;
+            s.pacTop.flipped = !s.pacTop.flipped;
         }
 
-        var mouthCenter = player.sprites.pacTop.flipped ? (Math.PI/4) : 0;
-        player.sprites.pacTop.rotation = Math.atan2(-1, 1) * (player.sprites.pacTop.mouthPos)/player.sprites.pacTop.mouthMax + mouthCenter;
-        player.sprites.pacBot.rotation = Math.atan2(1, 1) * (player.sprites.pacTop.mouthPos)/player.sprites.pacTop.mouthMax - mouthCenter;
-        
-        if(player.sprites.pacTop.closing)
+        if (player.grip && s.pacTop.mouthMax != pacMouthMax_JJ)
         {
-            player.sprites.pacTop.mouthPos--;
-            if (player.sprites.pacTop.mouthPos <= 0)
+            s.pacTop.mouthMax = pacMouthMax_JJ;
+            if (s.pacTop.mouthPos >= pacMouthMax_JJ)
             {
-                player.sprites.pacTop.closing = false;
+                s.pacTop.mouthPos = pacMouthMax_JJ;
+                s.pacTop.closing = true;
+            }
+        }
+        else if (!player.grip && s.pacTop.mouthMax != pacMouthMax)
+        {
+            s.pacTop.mouthMax = pacMouthMax;
+        }
+
+        var mouthCenter = s.pacTop.flipped ? (Math.PI/4) : 0;
+        s.pacTop.rotation = Math.atan2(-1, 1) * (s.pacTop.mouthPos)/s.pacTop.mouthMax + mouthCenter;
+        s.pacBot.rotation = Math.atan2(1, 1) * (s.pacTop.mouthPos)/s.pacTop.mouthMax - mouthCenter;
+        
+        if(s.pacTop.closing)
+        {
+            s.pacTop.mouthPos--;
+            if (s.pacTop.mouthPos <= 0)
+            {
+                s.pacTop.closing = false;
             }
         }
         else
         {
-            player.sprites.pacTop.mouthPos++;
-            if (player.sprites.pacTop.mouthPos >= player.sprites.pacTop.mouthMax)
+            s.pacTop.mouthPos++;
+            if (s.pacTop.mouthPos >= s.pacTop.mouthMax)
             {
-                player.sprites.pacTop.closing = true;
+                s.pacTop.closing = true;
             }
         }
     }
@@ -170,44 +181,44 @@ tagpro.ready(function()
             leftEye = new PIXI.Point(11,13);    
             rightEye = new PIXI.Point(23,13);
         }
-        else if (direction == -0.75)//player.left && player.up)
+        else if (direction == -0.75)// up left
         {
             leftEye = new PIXI.Point(10,11);    
             rightEye = new PIXI.Point(22,11);
         }
-        else if (direction == -0.25)//player.left && player.down)
+        else if (direction == -0.25)// down left
         {
             leftEye = new PIXI.Point(10,15);    
             rightEye = new PIXI.Point(22,15);
         }
         
-        else if (direction == 0.75)//player.right && player.up)
+        else if (direction == 0.75)// up right
         {
             leftEye = new PIXI.Point(12,11);
             rightEye = new PIXI.Point(24,11);
         }
-        else if (direction == 0.25)//player.right && player.down)
+        else if (direction == 0.25)// down right
         {
             
             leftEye = new PIXI.Point(12,15);    
             rightEye = new PIXI.Point(24,15);
         }
-        else if(direction == -0.5)//player.left)
+        else if(direction == -0.5)// left
         {
             leftEye = new PIXI.Point(10, 13);
             rightEye = new PIXI.Point(22,13);
         }
-        else if (direction == 0.5)//player.right)
+        else if (direction == 0.5)// right
         {
             leftEye = new PIXI.Point(12,13);    
             rightEye = new PIXI.Point(24,13);
         }
-        else if ((direction == 1) || (direction == -1))//player.up)
+        else if ((direction == 1) || (direction == -1))// up
         {
             leftEye = new PIXI.Point(11,10);    
             rightEye = new PIXI.Point(23,10);
         }
-        else if (direction == 0)//player.down)
+        else if (direction == 0)// down
         {
             leftEye = new PIXI.Point(11,16);    
             rightEye = new PIXI.Point(23,16);
@@ -253,7 +264,6 @@ tagpro.ready(function()
         prevUpdateSprites(player);
     };
 
-        
     //*************** TAGPRO *********************//
     tr.updateTagpro = function (e) {
         if (e.tagpro) {
@@ -327,8 +337,6 @@ tagpro.ready(function()
         tr.drawBallPop(e + 19, t + 19, r);
     }
 
-    
-
     function checkTeam() {
         //wait until you'be been assigned to a team and the tiles have been loaded. 
         if (!tagpro.players[tagpro.playerId] | !tagpro.tiles) {
@@ -340,54 +348,67 @@ tagpro.ready(function()
         if (teamId  != colorId[teamColor]) {
             tagpro.switchedColors = true;
             switchTiles();
-            // Force a redraw of the scores
-            tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.redScore);
-            tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.blueScore);
-            tagpro.ui.sprites.redScore = null;
-            tagpro.ui.sprites.blueScore = null;
+
         }
-        refreshTextures();
+        setTimeout(checkSwitchTeam, 5000);
     }
 
     function switchTiles() {
-        //store red tiles temporarily
-        // rFlag = tagpro.tiles[3];
-        // rEmptyFlag = tagpro.tiles[3.1];
-        // rGate = tagpro.tiles[9.2];
-        // rZone = tagpro.tiles[17];
-        // rTeam = tagpro.tiles[11];
-        // rBall = tagpro.tiles['redball'];
-        // rFlag2 = tagpro.tiles['redflag'];
-        
-        // //set red tiles equal to blue tiles
-        // tagpro.tiles[3] = tagpro.tiles[4];
-        // tagpro.tiles[3.1] = tagpro.tiles[4.1];
-        // tagpro.tiles[9.2] = tagpro.tiles[9.3];
-        // tagpro.tiles[17] = tagpro.tiles[18];
-        // tagpro.tiles[11] = tagpro.tiles[12];
-        // tagpro.tiles['redball'] = tagpro.tiles['blueball'];
-        // tagpro.tiles['redflag'] = tagpro.tiles['blueflag'];
-        
-        // //set blue tiles equal to red tiles that were stored earlier
-        // tagpro.tiles[4] = rFlag;
-        // tagpro.tiles[4.1] = rEmptyFlag;
-        // tagpro.tiles[9.3] = rGate;
-        // tagpro.tiles[18] = rZone;
-        // tagpro.tiles[12] = rTeam;
-        // tagpro.tiles['blueball'] = rBall;
-        // tagpro.tiles['blueflag'] = rFlag2;
-        document.getElementById("tiles").src = TilesSwapped;
-
         rspeed = document.getElementById("speedpadred").src;
         document.getElementById("speedpadred").src = document.getElementById("speedpadblue").src;
         document.getElementById("speedpadblue").src = rspeed;
+
+        rpop = document.getElementById("ballpopred").src;
+        document.getElementById("ballpopred").src = document.getElementById("ballpopblue").src;
+        document.getElementById("ballpopblue").src = rpop;
+
+        if (tagpro.switchedColors)
+        {
+            document.getElementById("tiles").src = TilesSwapped;
+        }
+        else
+        {
+            document.getElementById("tiles").src = TilesRegular;
+        }
+
+        // Force a redraw of the scores
+        tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.redScore);
+        tagpro.renderer.layers.ui.removeChild(tagpro.ui.sprites.blueScore);
+        tagpro.ui.sprites.redScore = null;
+        tagpro.ui.sprites.blueScore = null;
+
+        setTimeout(refreshTextures, 100);
     }
 
     function refreshTextures() {
         if (!tagpro.renderer.refresh) {
             return setTimeout(refreshTextures, 10);
         }
-        console.log("Refreshing");
         window.requestAnimationFrame(tagpro.renderer.refresh);
     }
+
+    function checkSwitchTeam(){
+        if (teamId != tagpro.players[tagpro.playerId].team)
+        {
+            console.log("Switching Teams");
+            teamId = tagpro.players[tagpro.playerId].team;
+            tagpro.switchedColors = !tagpro.switchedColors;
+            switchTiles();
+        }
+        setTimeout(checkSwitchTeam, 1000);
+    }
 });
+
+tagpro.socket.on('chat',function(m){
+    console.log("on chat, m = " + m.message);
+    if (m.message.indexOf("has switched to the")>-1) {
+        setTimeout(function() {
+            if (teamId != tagpro.players[tagpro.playerId]['team']) {
+                console.log("Switching teams");
+                teamId = tagpro.players[tagpro.playerId]['team'];
+                switchTiles();
+                tagpro.switchedColors = !tagpro.switchedColors;
+            }
+        },200)
+    }
+})
