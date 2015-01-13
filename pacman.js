@@ -398,17 +398,3 @@ tagpro.ready(function()
         setTimeout(checkSwitchTeam, 1000);
     }
 });
-
-tagpro.socket.on('chat',function(m){
-    console.log("on chat, m = " + m.message);
-    if (m.message.indexOf("has switched to the")>-1) {
-        setTimeout(function() {
-            if (teamId != tagpro.players[tagpro.playerId]['team']) {
-                console.log("Switching teams");
-                teamId = tagpro.players[tagpro.playerId]['team'];
-                switchTiles();
-                tagpro.switchedColors = !tagpro.switchedColors;
-            }
-        },200)
-    }
-})
