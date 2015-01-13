@@ -30,6 +30,9 @@ var GHOST_TAGPRO = new PIXI.Texture.fromImage("http://i.imgur.com/U7l92W8.png");
 //Constants
 var MOUTH_MAX = 15;
 var MOUTH_MAX_JJ = 8;
+//Audio
+var PacmanStart = new Audio("https://clyp.it/gmk34qew.mp3");
+var PacmanDeath = new Audio("https://clyp.it/wcg5vuv4.mp3");
 
 //Globals
 teamColor = 'blue';
@@ -50,6 +53,8 @@ tagpro.ready(function()
     checkTeam();
     tr = tagpro.renderer;
     
+    if (tagpro.sound) PacmanStart.play();
+
     // Creates the Pacman sprite
     tr.createPacman = function(player) {
         // If player switched team, remove the ghost sprite
