@@ -20,6 +20,7 @@ var SpeedPadBlue = "http://i.imgur.com/tbz0xgb.png";
 var Portal = "http://i.imgur.com/a0JUw8q.png";
 var BallPopRed = "http://i.imgur.com/31srn9r.png";
 var BallPopBlue = "http://i.imgur.com/HGvXAsC.png";
+var PacmanCircle = "http://i.imgur.com/nvo2Vzo.png";
 //Textures
 var PACTOP = new PIXI.Texture.fromImage("http://i.imgur.com/ovzoHNE.png");
 var PACBOT = new PIXI.Texture.fromImage("http://i.imgur.com/gIAt7wD.png");
@@ -38,6 +39,7 @@ teamColor = 'blue';
 tagpro.switchedColors = false;
 colorId = {red:1, blue:2};
 teamId = 0;
+document.getElementById("particle").src = PacmanCircle;
 
 tagpro.ready(function()
 {
@@ -48,7 +50,7 @@ tagpro.ready(function()
     document.getElementById("portal").src = Portal;
     document.getElementById("ballpopred").src = BallPopRed;
     document.getElementById("ballpopblue").src = BallPopBlue;
-    
+
     checkTeam();
     tr = tagpro.renderer;
     
@@ -359,6 +361,11 @@ tagpro.ready(function()
         return s.x = Math.round(t.x - s.width / 2), s.y = 100, e.addChild(s), s
     };
 
+    tr.createPlayerEmitter = function(e) {
+        if (tr.options.disableParticles) return;
+        e.sprites.emitter = new cloudkid.Emitter(tr.layers.midground, [tr.particleTexture], tagpro.particleDefinitions.playerEmitter), e.sprites.emitter.keep = !0, tr.emitters.push(e.sprites.emitter), e.sprites.emitter.emit = !1
+    }
+
     // Overrides the default pop animation to display the drawBallPop function.  Also does not draw splats
     tr.drawSplat = function(e, t, r, i, s) {
         tr.drawBallPop(e + 19, t + 19, r);
@@ -444,5 +451,52 @@ tagpro.ready(function()
             return setTimeout(refreshTextures, 10);
         }
         window.requestAnimationFrame(tagpro.renderer.refresh);
+    }
+
+    tagpro.particleDefinitions.playerEmitter =
+    {
+        alpha: {
+            start: 1,
+            end: .3
+        },
+        scale: {
+            start: 1,
+            end: 1,
+            minimumScaleMultiplier: 1
+        },
+        color: {
+            start: "0xffffff",
+            end: "0xffffff"
+        },
+        speed: {
+            start: 0,
+            end: 0
+        },
+        acceleration: {
+            x: 0,
+            y: 0
+        },
+        startRotation: {
+            min: 0,
+            max: 0
+        },
+        rotationSpeed: {
+            min: 0,
+            max: 0
+        },
+        lifetime: {
+            min: 1,
+            max: 1
+        },
+        blendMode: "normal",
+        frequency: .2,
+        emitterLifetime: -1,
+        maxParticles: 50,
+        pos: {
+            x: 20,
+            y: 20
+        },
+        addAtBack: false,
+        spawnType: "point"
     }
 });
