@@ -500,21 +500,4 @@ tagpro.ready(function()
         addAtBack: false,
         spawnType: "point"
     }
-
-    tagpro.socket.on('chat', function (m) {
-        var blueRegex = new RegExp("blue", "ig");
-        var redRegex = new RegExp("red", "ig");
-        if (m.message.search(blueRegex) > -1)
-        {
-            if (tagpro.switchedColors) m.message = m.message.replace(blueRegex, "Ghost");
-            else m.message = m.message.replace(blueRegex, "Pacman");
-        }
-        if (m.message.search(redRegex) > -1)
-        {
-            if (tagpro.switchedColors) m.message = m.message.replace(redRegex, "Ghost");
-            else m.message = m.message.replace(redRegex, "Pacman");   
-        }
-        console.log (m.message);
-        return m;
-    });
 });
