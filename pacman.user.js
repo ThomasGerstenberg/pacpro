@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          PacPro
 // @namespace     http://*.koalabeast.com:*
-// @version       3.0.1
+// @version       3.0.2
 // @description   Pacman mod and texture pack
 // @copyright     2015+, moose.
 // @require       https://gist.githubusercontent.com/SomeBall-1/80320c9db3e1146c0a66/raw/TagPro%20Texture%20Refresh.js
