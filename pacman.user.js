@@ -5,9 +5,9 @@
 // @description   Pacman mod and texture pack
 // @copyright     2015+, moose.
 // @require       https://gist.githubusercontent.com/SomeBall-1/80320c9db3e1146c0a66/raw/TagPro%20Texture%20Refresh.js
-// @include       http://*.koalabeast.com*
-// @include       http://*.jukejuice.com*
-// @include       http://*.newcompte.fr*
+// @include       http://tagpro-*.koalabeast.com:*
+// @include       http://tangent.jukejuice.com:*
+// @include       http://*.newcompte.fr:*
 // @include       *tagproandluckyspammersucksandunfortunatesniperisawesome.com:*
 // ==/UserScript==
 
@@ -55,7 +55,11 @@ tagpro.ready(function()
     checkTeam();
     tr = tagpro.renderer;
     
-    if (tagpro.sound) PacmanStart.play();
+    if (tagpro.sound) {
+        tagpro.musicPlayer.mute()
+        PacmanStart.play();
+        setTimeout(tagpro.musicPlayer.next, 5000)
+    }
 
     // Creates the Pacman sprite
     tr.createPacman = function(player) {
