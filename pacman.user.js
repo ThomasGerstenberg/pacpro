@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name          PacPro
+// @author        moose. | GermanBuddhist
 // @namespace     http://*.koalabeast.com:*
-// @version       3.0.2
+// @version       3.0.3
 // @description   Pacman mod and texture pack
 // @copyright     2015+, moose.
 // @require       https://gist.githubusercontent.com/SomeBall-1/80320c9db3e1146c0a66/raw/TagPro%20Texture%20Refresh.js
@@ -350,7 +351,7 @@ tagpro.ready(function()
     tagpro.ui.largeAlert = function(e, t, n, r, i) {
         if (r.indexOf("Wins!") > -1)
         {
-            if ((tagpro.winner == "red") || ((tagpro.winner == "blue") && tagpro.switchedColors))
+            if ((tagpro.winner == "red" && !tagpro.switchedColors) || ((tagpro.winner == "blue") && tagpro.switchedColors))
             {
                 r = "Ghosts Win!";
                 i = "#FF0000";
